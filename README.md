@@ -8,6 +8,9 @@ Kuriama sistema yra internetinė programa, skirta supaprastinti įmonių invento
 
 Iš viso skiriami 2 pagrindiniai vartotojų tipai: įmonės sistemos administratorius, bei paprastas darbuotojas. Neregistruoti vartotojai (svečiai) mato tik pagrindinį sistemos puslapį ir gali tik prisiregistruoti arba prisijungti.
 
+![image](https://github.com/zaiolul/warehelper_app/assets/89912978/cbb5c457-5b75-4467-b17a-be018d905a53)
+
+
 **Sistemos administratoriui galima:**
 - Pridėti sandėlius;
 - Šalinti sandėlius;
@@ -30,4 +33,4 @@ Iš viso skiriami 2 pagrindiniai vartotojų tipai: įmonės sistemos administrat
 Sistemą sudaro kliento ir serverio dalys. Kliento pusėje funkcionalumą įgyvendinti bus naudojama React.js. Serverio pusė bus realizuota naudojant ASP.NET Core. Projektui naudojama MySQL duomenų bazės valdymo sistema. Projektas bus talpinamas Microsoft Azure serveryje. 
 
  
-![Deployment diagram](https://github.com/zaiolul/warehelper_app/assets/89912978/2a18b085-600b-477b-a4dd-7bc4be48154b)
+![Deployment diagram](https://github.com/zaiolul/warehelper_app/assets/89912978/7d063c4f-ef89-4dff-9ac7-44f690fa47e8)
