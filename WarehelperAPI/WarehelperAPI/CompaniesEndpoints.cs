@@ -32,7 +32,7 @@ namespace WarehelperAPI
                 return Results.Ok(new CompanyDto(company.Id, company.Name, company.RegistrationDate, company.Address));
             });
 
-            companiesGroup.MapPost("companies", [Authorize(Roles = WarehelperRoles.Admin)] async ([Validate] CreateCompanyDto createCompanyDto, HttpContext httpContext, WarehelperDbContext dbContext) =>
+            companiesGroup.MapPost("companies",  async ([Validate] CreateCompanyDto createCompanyDto, HttpContext httpContext, WarehelperDbContext dbContext) =>
             {
 
                 Company company = new Company()
