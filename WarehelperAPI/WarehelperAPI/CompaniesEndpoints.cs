@@ -32,7 +32,7 @@ namespace WarehelperAPI
                 return Results.Ok(new CompanyDto(company.Id, company.Name, company.RegistrationDate, company.Address));
             });
 
-            companiesGroup.MapPost("companies", [Authorize(Roles = WarehelperRoles.Admin)] async ([Validate] CreateCompanyDto createCompanyDto, HttpContext httpContext, WarehelperDbContext dbContext) =>
+            companiesGroup.MapPost("companies",  async ([Validate] CreateCompanyDto createCompanyDto, HttpContext httpContext, WarehelperDbContext dbContext) =>
             {
 
                 Company company = new Company()
@@ -40,7 +40,7 @@ namespace WarehelperAPI
                     Name = createCompanyDto.Name,
                     Address = createCompanyDto.Address,
                     RegistrationDate = DateTime.Now,
-                    UserId = httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub)
+                    UserId = "test"
                 };
 
                 dbContext.Companies.Add(company);
@@ -48,7 +48,7 @@ namespace WarehelperAPI
                 return Results.Created($"/api/companies/{company.Id}", new CompanyDto(company.Id, company.Name, company.RegistrationDate, company.Address));
             });
 
-            companiesGroup.MapPut("companies/{companyId:int}", [Authorize(Roles = WarehelperRoles.Admin)] async (HttpContext httpContext, int companyId, [Validate] UpdateCompanyDto updateCompanyDto, WarehelperDbContext dbContext) =>
+            companiesGroup.MapPut("companies/{companyId:int}",  async (HttpContext httpContext, int companyId, [Validate] UpdateCompanyDto updateCompanyDto, WarehelperDbContext dbContext) =>
             {
 
                 Company company = await dbContext.Companies.FirstOrDefaultAsync<Company>(company => company.Id == companyId);
