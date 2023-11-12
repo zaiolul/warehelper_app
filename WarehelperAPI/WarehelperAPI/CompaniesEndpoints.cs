@@ -31,11 +31,7 @@ namespace WarehelperAPI
 
             companiesGroup.MapPost("companies", [Authorize(Roles = WarehelperRoles.Admin)]  async ([Validate] CreateCompanyDto createCompanyDto, HttpContext httpContext, WarehelperDbContext dbContext) =>
             {
-                if(httpContext.User == null)
-                {
-                    System.Diagnostics.Trace.WriteLine("USER IS NULL");
-                }
-                System.Diagnostics.Trace.WriteLine($"USER NAME: {httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Jti)}");
+               
                 Company company = new Company()
                 {
                     Name = createCompanyDto.Name,

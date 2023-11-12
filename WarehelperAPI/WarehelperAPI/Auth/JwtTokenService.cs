@@ -16,6 +16,7 @@ namespace WarehelperAPI.Auth
             _authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt_Secret"]));
             _issuer = configuration["Jwt_Issuer"];
             _audience = configuration["Jwt_ValidAudience"];
+
         }
         public string CreateAccessToken(string userName, string userId, IEnumerable<string> roles)
         {

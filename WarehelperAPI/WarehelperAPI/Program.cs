@@ -24,7 +24,6 @@ builder.Services.AddIdentity<WarehelperUser, IdentityRole>().
     AddEntityFrameworkStores<WarehelperDbContext>().
     AddDefaultTokenProviders();
 
-builder.Services.AddHttpContextAccessor();
 
 
 builder.Services.AddAuthentication(options =>
@@ -69,5 +68,5 @@ var dbSeeder = scope.ServiceProvider.GetRequiredService<AuthDbSeeder>();
 await dbSeeder.SeedAsync();
 
 app.Run();
-System.Diagnostics.Trace.WriteLine("Run app");
+
 
