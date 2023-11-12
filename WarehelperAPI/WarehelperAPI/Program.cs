@@ -69,7 +69,7 @@ using var scope = app.Services.CreateScope();
 var dbSeeder = scope.ServiceProvider.GetRequiredService<AuthDbSeeder>();
 await dbSeeder.SeedAsync();
 
-
+System.Diagnostics.Trace.TraceError("PROGRAM START");
 
 app.Run();
 

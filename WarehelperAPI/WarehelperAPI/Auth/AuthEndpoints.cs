@@ -13,6 +13,7 @@ namespace WarehelperAPI.Auth
         {
             app.MapPost("api/register", async (UserManager<WarehelperUser> userManager, RegisterUserDto registerUserDto) =>
             {
+                System.Diagnostics.Trace.TraceError("REGISTER");
                 var user = await userManager.FindByNameAsync(registerUserDto.Username);
                 if (user != null)
                 {
@@ -36,6 +37,7 @@ namespace WarehelperAPI.Auth
 
             app.MapPost("api/login", async (UserManager<WarehelperUser> userManager,JwtTokenService tokenService, LoginUserDto loginDto) =>
             {
+                System.Diagnostics.Trace.TraceError("LOGIN");
                 var user = await userManager.FindByNameAsync(loginDto.UserName);
                 if (user == null)
                 {
