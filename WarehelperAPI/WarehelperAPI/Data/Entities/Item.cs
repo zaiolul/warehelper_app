@@ -1,5 +1,7 @@
 ﻿
 using FluentValidation;
+using System.ComponentModel.DataAnnotations;
+using WarehelperAPI.Auth.Model;
 
 namespace WarehelperAPI.Data.Entities
 {
@@ -11,6 +13,9 @@ namespace WarehelperAPI.Data.Entities
         public string? Description { get; set; }
         public required DateTime LastUpdateTime { get; set; }
         public required Warehouse Warehouse { get; set; }
+        [Required]
+        public required string UserId { get; set; }
+        public WarehelperUser User { get; set; }
     }
 
     public record ItemDto(int Id, string Name, string Category, string? Description, DateTime LastUpdateTime);

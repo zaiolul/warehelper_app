@@ -1,6 +1,8 @@
 ﻿using FluentValidation;
-using Org.BouncyCastle.Bcpg.OpenPgp;
+
+using System.ComponentModel.DataAnnotations;
 using System.Xml;
+using WarehelperAPI.Auth.Model;
 
 namespace WarehelperAPI.Data.Entities
 {
@@ -14,6 +16,9 @@ namespace WarehelperAPI.Data.Entities
 
         public required string Type { get; set; }
         public required Company Company { get; set; }
+        [Required]
+        public required string UserId { get; set; }
+        public WarehelperUser User { get; set; }
     }
     
     public record WarehouseDto(int Id, string Name, string Address, int ItemCount, string Type);

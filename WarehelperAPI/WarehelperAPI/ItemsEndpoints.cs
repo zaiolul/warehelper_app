@@ -1,6 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using O9d.AspNet.FluentValidation;
 using System.ComponentModel.Design;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using WarehelperAPI.Data;
 using WarehelperAPI.Data.Entities;
 
@@ -17,7 +20,7 @@ namespace WarehelperAPI
                        new ItemDto(obj.Id, obj.Name, obj.Category, obj.Description, obj.LastUpdateTime));
             });
 
-            itemsGroup.MapGet("items/{itemId}", async (int companyId, int warehouseId, int itemId, WarehelperDbContext dbContext) =>
+            itemsGroup.MapGet("items/{itemId:int}", async (int companyId, int warehouseId, int itemId, WarehelperDbContext dbContext) =>
             {
                 Item item = await dbContext.Items.FirstOrDefaultAsync<Item>(it => it.Id == itemId && it.Warehouse.Id == warehouseId && it.Warehouse.Company.Id == companyId);
                 if (item == null)
@@ -27,7 +30,7 @@ namespace WarehelperAPI
                 return Results.Ok(new ItemDto(item.Id, item.Name, item.Category, item.Description, item.LastUpdateTime));
             });
 
-            itemsGroup.MapPost("items", async (int companyId, int warehouseId, [Validate] CreateItemDto createItemDto, WarehelperDbContext dbContext) =>
+            itemsGroup.MapPost("items", async (int companyId, int warehouseId, [Validate] CreateItemDto createItemDto, HttpContext httpContext, WarehelperDbContext dbContext) =>
             {
 
                 Warehouse warehouse = await dbContext.Warehouses.FirstOrDefaultAsync<Warehouse>(wh => wh.Id == warehouseId && wh.Company.Id == companyId);
@@ -44,7 +47,8 @@ namespace WarehelperAPI
                     Description = createItemDto.Description,
 
                     LastUpdateTime = DateTime.UtcNow,
-                    Warehouse = warehouse
+                    Warehouse = warehouse,
+                    UserId = httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub)
                 };
                 item.Warehouse.ItemCount++;
                 dbContext.Items.Add(item);
@@ -53,9 +57,9 @@ namespace WarehelperAPI
                     new ItemDto(item.Id, item.Name, item.Category, item.Description, item.LastUpdateTime));
             });
 
-            itemsGroup.MapPut("items/{itemId}", async (int companyId, int warehouseId, int itemId, UpdateItemDto updateItemDto,WarehelperDbContext dbContext) =>
+            itemsGroup.MapPut("items/{itemId:int}", async (int companyId, int warehouseId, int itemId, UpdateItemDto updateItemDto,WarehelperDbContext dbContext) =>
             {
-                Item item = await dbContext.Items.FirstOrDefaultAsync<Item>(it => it.Id == itemId && it.Warehouse.Id == warehouseId && it.Warehouse.Company.Id == companyId);
+                Item item = await dbContext.Items.Include(it => it.Warehouse).Include(it => it.Warehouse.Company).FirstOrDefaultAsync<Item>(it => it.Id == itemId && it.Warehouse.Id == warehouseId && it.Warehouse.Company.Id == companyId);
                 if (item == null)
                 {
                     return Results.NotFound();
@@ -69,14 +73,15 @@ namespace WarehelperAPI
                 return Results.Ok(new ItemDto(item.Id, item.Name, item.Category, item.Description, item.LastUpdateTime));
             });
 
-            itemsGroup.MapDelete("items/{itemId}", async (int companyId, int warehouseId, int itemId, WarehelperDbContext dbContext) =>
+            itemsGroup.MapDelete("items/{itemId:int}", async (int companyId, int warehouseId, int itemId, WarehelperDbContext dbContext) =>
             {
-                Item item = await dbContext.Items.FirstOrDefaultAsync<Item>(it => it.Id == itemId && it.Warehouse.Id == warehouseId && it.Warehouse.Company.Id == companyId);
+                Item item = await dbContext.Items.Include(it =>it.Warehouse).Include(it =>it.Warehouse.Company).FirstOrDefaultAsync<Item>(it => it.Id == itemId && it.Warehouse.Id == warehouseId && it.Warehouse.Company.Id == companyId);
                 if (item == null)
                 {
                     return Results.NotFound();
                 }
 
+                
                 item.Warehouse.ItemCount--;
                 dbContext.Remove(item);
                 await dbContext.SaveChangesAsync();

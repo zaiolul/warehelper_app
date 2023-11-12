@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using O9d.AspNet.FluentValidation;
 using System.ComponentModel.Design;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Threading;
 using WarehelperAPI.Data;
 using WarehelperAPI.Data.Entities;
@@ -19,7 +21,7 @@ namespace WarehelperAPI
 
             });
 
-            warehousesGroup.MapGet("warehouses/{warehouseId}", async (int companyId, int warehouseId, WarehelperDbContext dbContext) =>
+            warehousesGroup.MapGet("warehouses/{warehouseId:int}", async (int companyId, int warehouseId, WarehelperDbContext dbContext) =>
             {
                 
                 Warehouse warehouse = await dbContext.Warehouses.FirstOrDefaultAsync<Warehouse>(wh => wh.Company.Id == companyId && wh.Id == warehouseId );
@@ -30,7 +32,7 @@ namespace WarehelperAPI
                 return Results.Ok(new WarehouseDto(warehouse.Id,warehouse.Name, warehouse.Address, warehouse.ItemCount, warehouse.Type));
             });
 
-            warehousesGroup.MapPost("warehouses", async (int companyId,[Validate] ModifyWarehouseDto createWarehouseDto, WarehelperDbContext dbContext) =>
+            warehousesGroup.MapPost("warehouses", async (int companyId,[Validate] ModifyWarehouseDto createWarehouseDto, HttpContext httpContext, WarehelperDbContext dbContext) =>
             {
 
                 Company company = await dbContext.Companies.FirstOrDefaultAsync<Company>(c => c.Id == companyId );
@@ -46,7 +48,8 @@ namespace WarehelperAPI
                     Address = createWarehouseDto.Address,
                     Type = createWarehouseDto.Type,
                     ItemCount = 0,
-                    Company = company
+                    Company = company,
+                    UserId = httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub)
                 };
 
                 dbContext.Warehouses.Add(warehouse);
@@ -54,7 +57,7 @@ namespace WarehelperAPI
                 return Results.Created($"/api/companies/{companyId}/warehouses/{warehouse.Id}", new WarehouseDto(warehouse.Id, warehouse.Name, warehouse.Address, warehouse.ItemCount, warehouse.Type));
             });
 
-            warehousesGroup.MapPut("warehouses/{warehouseId}", async (int companyId, int warehouseId,[Validate] ModifyWarehouseDto updateWarehouseDto, WarehelperDbContext dbContext) =>
+            warehousesGroup.MapPut("warehouses/{warehouseId:int}", async (int companyId, int warehouseId,[Validate] ModifyWarehouseDto updateWarehouseDto, WarehelperDbContext dbContext) =>
             {
                 Warehouse warehouse = await dbContext.Warehouses.FirstOrDefaultAsync<Warehouse>(wh => wh.Id == warehouseId && wh.Company.Id == companyId);
                 if (warehouse == null)
@@ -71,7 +74,7 @@ namespace WarehelperAPI
                 return Results.Ok(new WarehouseDto(warehouse.Id, warehouse.Name, warehouse.Address, warehouse.ItemCount, warehouse.Type));
             });
 
-            warehousesGroup.MapDelete("warehouses/{warehouseId}", async (int companyId, int warehouseId, WarehelperDbContext dbContext) =>
+            warehousesGroup.MapDelete("warehouses/{warehouseId:int}", async (int companyId, int warehouseId, WarehelperDbContext dbContext) =>
             {
                 Warehouse warehouse = await dbContext.Warehouses.FirstOrDefaultAsync<Warehouse>(wh => wh.Id == warehouseId && wh.Company.Id == companyId);
                 if (warehouse == null)

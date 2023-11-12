@@ -1,4 +1,7 @@
 ﻿using FluentValidation;
+using Microsoft.Identity.Client;
+using System.ComponentModel.DataAnnotations;
+using WarehelperAPI.Auth.Model;
 
 namespace WarehelperAPI.Data.Entities
 {
@@ -8,6 +11,10 @@ namespace WarehelperAPI.Data.Entities
         public required string Name { get; set; }
         public required DateTime RegistrationDate { get; set; }
         public required string Address { get; set; }
+
+        [Required]
+        public required string UserId { get; set; }
+        public WarehelperUser User { get; set; }
     }
 
     public record CompanyDto(int Id, string Name, DateTime RegistrationDate, string Address);
@@ -17,9 +24,10 @@ namespace WarehelperAPI.Data.Entities
     public class CreateCompanyDtoValidator : AbstractValidator<CreateCompanyDto>
     {
         public CreateCompanyDtoValidator()
-        {
-            RuleFor(dto => dto.Name).NotEmpty().NotNull().Length(5, 30);
-            RuleFor(dto => dto.Address).NotEmpty().NotNull().Length(1, 100);
+        {  
+               RuleFor(dto => dto.Name).NotEmpty().NotNull().Length(5, 30);
+               RuleFor(dto => dto.Address).NotEmpty().NotNull().Length(1, 100);
+
         }
     }
 

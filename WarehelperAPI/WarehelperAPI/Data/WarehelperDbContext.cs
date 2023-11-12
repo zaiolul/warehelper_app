@@ -1,9 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using WarehelperAPI.Auth.Model;
 using WarehelperAPI.Data.Entities;
 
 namespace WarehelperAPI.Data
 {
-    public class WarehelperDbContext : DbContext
+    public class WarehelperDbContext : IdentityDbContext<WarehelperUser>
     {
         private readonly IConfiguration configuration;
         public DbSet<Company> Companies { get; set; }
