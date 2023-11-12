@@ -2,9 +2,6 @@
 using WarehelperAPI.Data.Entities;
 using WarehelperAPI.Data;
 using Microsoft.EntityFrameworkCore;
-
-using System.Text;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authorization;
@@ -34,7 +31,11 @@ namespace WarehelperAPI
 
             companiesGroup.MapPost("companies",  async ([Validate] CreateCompanyDto createCompanyDto, HttpContext httpContext, WarehelperDbContext dbContext) =>
             {
-
+                if(httpContext.User == null)
+                {
+                    System.Diagnostics.Trace.WriteLine("USER IS NULL");
+                }
+                System.Diagnostics.Trace.WriteLine($"USER NAME: {httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Jti)}");
                 Company company = new Company()
                 {
                     Name = createCompanyDto.Name,
