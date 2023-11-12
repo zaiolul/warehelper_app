@@ -24,7 +24,7 @@ builder.Services.AddIdentity<WarehelperUser, IdentityRole>().
     AddEntityFrameworkStores<WarehelperDbContext>().
     AddDefaultTokenProviders();
 
-
+builder.Services.AddHttpContextAccessor();
 
 
 builder.Services.AddAuthentication(options =>
