@@ -63,8 +63,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 using var scope = app.Services.CreateScope();
-var dbContext = scope.ServiceProvider.GetService<WarehelperDbContext>();
-dbContext.Database.Migrate();
+//var dbContext = scope.ServiceProvider.GetService<WarehelperDbContext>();
+//dbContext.Database.Migrate();
 
 var dbSeeder = scope.ServiceProvider.GetRequiredService<AuthDbSeeder>();
 await dbSeeder.SeedAsync();
