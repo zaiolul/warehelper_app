@@ -27,6 +27,8 @@ builder.Services.AddIdentity<WarehelperUser, IdentityRole>().
     AddDefaultTokenProviders();
 
 
+
+System.Diagnostics.Trace.TraceError($"jwt vars: {builder.Configuration["Jwt:ValidIssuer"]} {builder.Configuration["APPSETTING_Jwt:ValidIssuer"]}");
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme; 
