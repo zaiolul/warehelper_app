@@ -14,7 +14,7 @@ namespace WarehelperAPI.Auth
         public readonly string _audience;
         public JwtTokenService(IConfiguration configuration) {
             _authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt_Secret"]));
-            _issuer = configuration["Jwt_Issuer"];
+            _issuer = configuration["Jwt_ValidIssuer"];
             _audience = configuration["Jwt_ValidAudience"];
 
         }
