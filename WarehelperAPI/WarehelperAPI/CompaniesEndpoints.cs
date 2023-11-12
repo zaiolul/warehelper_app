@@ -70,7 +70,7 @@ namespace WarehelperAPI
 
             });
 
-            companiesGroup.MapDelete("companies/{companyId:int}", async (int companyId, WarehelperDbContext dbContext) =>
+            companiesGroup.MapDelete("companies/{companyId:int}", [Authorize(Roles = WarehelperRoles.Admin)]  async (int companyId, WarehelperDbContext dbContext) =>
             {
                 Company company = await dbContext.Companies.FirstOrDefaultAsync<Company>(company => company.Id == companyId);
                 if (company == null)

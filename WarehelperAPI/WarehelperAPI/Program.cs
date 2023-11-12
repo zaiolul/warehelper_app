@@ -44,11 +44,9 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
-System.Diagnostics.Trace.TraceError($"jwt vars: {builder.Configuration["Jwt_Issuer"]}");
-
 
 app.UseStatusCodePages(async statusCodeContext
-    => await Results.Problem(statusCode: statusCodeContext.HttpContext.Response.StatusCode, title: "Bad input", detail: "Could not parse request body.")
+    => await Results.Problem(statusCode: statusCodeContext.HttpContext.Response.StatusCode, title: "problem", detail: "Request couldn't complete successfully")
                  .ExecuteAsync(statusCodeContext.HttpContext));
 
 var companiesGroup = app.MapGroup("/api").WithValidationFilter();
@@ -70,8 +68,6 @@ using var scope = app.Services.CreateScope();
 
 var dbSeeder = scope.ServiceProvider.GetRequiredService<AuthDbSeeder>();
 await dbSeeder.SeedAsync();
-
-System.Diagnostics.Trace.TraceError("PROGRAM START");
 
 app.Run();
 
