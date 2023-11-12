@@ -1,6 +1,4 @@
 using FluentValidation;
-using Google.Protobuf.WellKnownTypes;
-using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using O9d.AspNet.FluentValidation;
 using WarehelperAPI;
@@ -49,6 +47,10 @@ app.UseStatusCodePages(async statusCodeContext
     => await Results.Problem(statusCode: statusCodeContext.HttpContext.Response.StatusCode, title: "problem", detail: "Request couldn't complete successfully")
                  .ExecuteAsync(statusCodeContext.HttpContext));
 
+app.UseAuthentication();
+app.UseAuthorization();
+app.AddAuthApi();
+
 var companiesGroup = app.MapGroup("/api").WithValidationFilter();
 CompaniesEndpoints.AddCompanyApi(companiesGroup);
 
@@ -58,9 +60,6 @@ WarehousesEndpoints.AddWarehousesApi(warehousesGroup);
 var itemsGroup = app.MapGroup("/api/companies/{companyId:int}/warehouses/{warehouseId:int}").WithValidationFilter();
 ItemsEndpoints.AddItemsApi(itemsGroup);
 
-app.AddAuthApi();
-app.UseAuthentication();
-app.UseAuthorization();
 
 using var scope = app.Services.CreateScope();
 //var dbContext = scope.ServiceProvider.GetService<WarehelperDbContext>();
@@ -70,5 +69,5 @@ var dbSeeder = scope.ServiceProvider.GetRequiredService<AuthDbSeeder>();
 await dbSeeder.SeedAsync();
 
 app.Run();
-
+System.Diagnostics.Trace.WriteLine("Run app");
 

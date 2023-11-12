@@ -56,7 +56,8 @@ namespace WarehelperAPI.Auth
                 var roles = await userManager.GetRolesAsync(user);
                 var accessToken = tokenService.CreateAccessToken(user.UserName, user.Id, roles);
                 var refreshToken = tokenService.CreateRefreshToken(user.Id);
-
+                Console.WriteLine($"USER NAME: {user.UserName} USER ID {user.Id}");
+                System.Diagnostics.Trace.WriteLine($"USER NAME: {user.UserName} USER ID {user.Id}");
                 return Results.Ok(new SuccessfulLoginDto(accessToken, refreshToken));
             });
 
