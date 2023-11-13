@@ -64,7 +64,7 @@ namespace WarehelperAPI
                 Item item = await dbContext.Items.Include(it => it.Warehouse).Include(it => it.Warehouse.Company).FirstOrDefaultAsync<Item>(it => it.Id == itemId && it.Warehouse.Id == warehouseId && it.Warehouse.Company.Id == companyId);
                 if (item == null)
                 {
-                    return Results.NotFound();
+                    return Results.NotFound("Item not found");
                 }
 
                 item.Description = updateItemDto.Description;
