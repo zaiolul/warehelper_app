@@ -1,4 +1,4 @@
-using FluentValidation;
+﻿using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using O9d.AspNet.FluentValidation;
 using WarehelperAPI;
@@ -10,6 +10,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using WarehelperAPI.Auth;
+
+//adminas - gali sukurti įmonę, sandėlius įmonėje, registruoti darbuotojus į sandėlius
+//darbuotojas - modifikuoti daiktus jam priskirtam sandelyje
 
 JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear(); // parsint roles ir kitas info user
 
@@ -61,8 +64,8 @@ ItemsEndpoints.AddItemsApi(itemsGroup);
 
 
 using var scope = app.Services.CreateScope();
-//var dbContext = scope.ServiceProvider.GetService<WarehelperDbContext>();
-//dbContext.Database.Migrate();
+var dbContext = scope.ServiceProvider.GetService<WarehelperDbContext>();
+dbContext.Database.Migrate();
 
 var dbSeeder = scope.ServiceProvider.GetRequiredService<AuthDbSeeder>();
 await dbSeeder.SeedAsync();

@@ -1,13 +1,17 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using O9d.AspNet.FluentValidation;
-using System.ComponentModel.Design;
+
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Threading;
+
 using WarehelperAPI.Auth.Model;
 using WarehelperAPI.Data;
 using WarehelperAPI.Data.Entities;
+
 
 namespace WarehelperAPI
 {
@@ -44,6 +48,11 @@ namespace WarehelperAPI
                     return Results.NotFound();
                 }
 
+                if (httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub) != company.UserId) //cant create warehouse for another company
+                {
+                    return Results.NotFound();
+                }
+
                 Warehouse warehouse = new Warehouse()
                 {
                     Name = createWarehouseDto.Name,
@@ -51,7 +60,7 @@ namespace WarehelperAPI
                     Type = createWarehouseDto.Type,
                     ItemCount = 0,
                     Company = company,
-                    UserId = httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub)
+                    UserId = httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub) //may not be used
                 };
 
                 dbContext.Warehouses.Add(warehouse);
@@ -59,10 +68,15 @@ namespace WarehelperAPI
                 return Results.Created($"/api/companies/{companyId}/warehouses/{warehouse.Id}", new WarehouseDto(warehouse.Id, warehouse.Name, warehouse.Address, warehouse.ItemCount, warehouse.Type));
             });
 
-            warehousesGroup.MapPut("warehouses/{warehouseId:int}", [Authorize(Roles = WarehelperRoles.Admin)] async (int companyId, int warehouseId,[Validate] ModifyWarehouseDto updateWarehouseDto, WarehelperDbContext dbContext) =>
+            warehousesGroup.MapPut("warehouses/{warehouseId:int}", [Authorize(Roles = WarehelperRoles.Admin)] async (int companyId, int warehouseId, HttpContext httpContext, [Validate] ModifyWarehouseDto updateWarehouseDto, WarehelperDbContext dbContext) =>
             {
-                Warehouse warehouse = await dbContext.Warehouses.FirstOrDefaultAsync<Warehouse>(wh => wh.Id == warehouseId && wh.Company.Id == companyId);
+                Warehouse warehouse = await dbContext.Warehouses.Include(it => it.Company).FirstOrDefaultAsync<Warehouse>(wh => wh.Id == warehouseId && wh.Company.Id == companyId);
                 if (warehouse == null)
+                {
+                    return Results.NotFound();
+                }
+
+                if (httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub) != warehouse.Company.UserId)
                 {
                     return Results.NotFound();
                 }
@@ -76,10 +90,14 @@ namespace WarehelperAPI
                 return Results.Ok(new WarehouseDto(warehouse.Id, warehouse.Name, warehouse.Address, warehouse.ItemCount, warehouse.Type));
             });
 
-            warehousesGroup.MapDelete("warehouses/{warehouseId:int}", [Authorize(Roles = WarehelperRoles.Admin)]  async (int companyId, int warehouseId, WarehelperDbContext dbContext) =>
+            warehousesGroup.MapDelete("warehouses/{warehouseId:int}", [Authorize(Roles = WarehelperRoles.Admin)]  async (int companyId, int warehouseId, HttpContext httpContext,  WarehelperDbContext dbContext) =>
             {
-                Warehouse warehouse = await dbContext.Warehouses.FirstOrDefaultAsync<Warehouse>(wh => wh.Id == warehouseId && wh.Company.Id == companyId);
+                Warehouse warehouse = await dbContext.Warehouses.Include(it => it.Company).FirstOrDefaultAsync<Warehouse>(wh => wh.Id == warehouseId && wh.Company.Id == companyId);
                 if (warehouse == null)
+                {
+                    return Results.NotFound();
+                }
+                if (httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub) != warehouse.Company.UserId)
                 {
                     return Results.NotFound();
                 }
@@ -88,6 +106,42 @@ namespace WarehelperAPI
 
                 return Results.NoContent();
             });
+
+            warehousesGroup.MapPut("warehouses/{warehouseId:int}/addWorker", [Authorize(Roles = WarehelperRoles.Admin)] async (int companyId, int warehouseId, HttpContext httpContext, UserManager < WarehelperUser> userManager, [Validate] SetUserDto setDto, WarehelperDbContext dbContext) =>
+            {
+
+                var user = await userManager.FindByNameAsync(setDto.UserName);
+                if (user == null)
+                {
+                    return Results.NotFound("User not registered");
+                }
+
+                Warehouse warehouse = await dbContext.Warehouses.Include(it => it.Company).FirstOrDefaultAsync<Warehouse>(wh => wh.Company.Id == companyId && wh.Id == warehouseId);
+                if(warehouse == null)
+                {
+                    return Results.NotFound();
+                }
+
+                if (httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub) != warehouse.Company.UserId)
+                {
+                    return Results.Forbid();
+                }
+
+                user.AssignedWarehouse = warehouseId;
+
+                await dbContext.SaveChangesAsync();
+                return Results.Ok(new SetUserDto(UserName: setDto.UserName));
+             
+
+            });
+        }
+        public record SetUserDto(string UserName);
+        public class SetWarehouseValidator : AbstractValidator<SetUserDto>
+        {
+            public SetWarehouseValidator()
+            {
+                RuleFor(dto => dto.UserName).NotEmpty().NotNull();
+            }
         }
     }
 }

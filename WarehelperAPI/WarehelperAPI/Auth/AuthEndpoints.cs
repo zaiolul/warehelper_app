@@ -1,9 +1,13 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.JsonWebTokens;
-using MySqlX.XDevAPI.Common;
-using System.Runtime.CompilerServices;
+using O9d.AspNet.FluentValidation;
 using System.Security.Claims;
 using WarehelperAPI.Auth.Model;
+using WarehelperAPI.Data;
+using WarehelperAPI.Data.Entities;
 
 namespace WarehelperAPI.Auth
 {
@@ -11,6 +15,8 @@ namespace WarehelperAPI.Auth
     {
         public static void AddAuthApi(this WebApplication app)
         {
+          
+
             app.MapPost("api/register", async (UserManager<WarehelperUser> userManager, RegisterUserDto registerUserDto) =>
             {
                 var user = await userManager.FindByNameAsync(registerUserDto.Username);
@@ -26,8 +32,7 @@ namespace WarehelperAPI.Auth
                 var createUserResult = await userManager.CreateAsync(newUser, registerUserDto.Password);
                 if (!createUserResult.Succeeded)
                 {
-                    return Results.UnprocessableEntity("Enter stronger login info :)");
-
+                    return Results.UnprocessableEntity("Enter stronger login information");
                 }
 
                 await userManager.AddToRoleAsync(newUser, WarehelperRoles.Worker);
@@ -36,7 +41,6 @@ namespace WarehelperAPI.Auth
 
             app.MapPost("api/login", async (UserManager<WarehelperUser> userManager,JwtTokenService tokenService, LoginUserDto loginDto) =>
             {
-                System.Diagnostics.Trace.TraceError("LOGIN");
                 var user = await userManager.FindByNameAsync(loginDto.UserName);
                 if (user == null)
                 {
@@ -95,8 +99,11 @@ namespace WarehelperAPI.Auth
 
 public record UserDto(string UserId, string UserName, string Email);
 
+
 public record RegisterUserDto(string Username,string Email, string Password);
 
 public record LoginUserDto(string UserName, string Password);
 public record SuccessfulLoginDto(string AccessToken, string RefreshToken);
 public record RefreshAccessTokenDto(string RefreshToken);
+
+

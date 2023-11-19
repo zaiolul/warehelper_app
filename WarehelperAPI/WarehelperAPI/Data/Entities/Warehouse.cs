@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 
 using System.ComponentModel.DataAnnotations;
-using System.Xml;
 using WarehelperAPI.Auth.Model;
 
 namespace WarehelperAPI.Data.Entities

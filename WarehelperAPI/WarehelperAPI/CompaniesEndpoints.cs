@@ -31,7 +31,12 @@ namespace WarehelperAPI
 
             companiesGroup.MapPost("companies", [Authorize(Roles = WarehelperRoles.Admin)]  async ([Validate] CreateCompanyDto createCompanyDto, HttpContext httpContext, WarehelperDbContext dbContext) =>
             {
-               
+                Company c = await dbContext.Companies.FirstOrDefaultAsync<Company>(c => c.UserId == httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub));
+                if (c != null)
+                {
+                    return Results.Unauthorized();
+                }
+
                 Company company = new Company()
                 {
                     Name = createCompanyDto.Name,
@@ -64,16 +69,21 @@ namespace WarehelperAPI
 
                 await dbContext.SaveChangesAsync();
                 return Results.Ok(new CompanyDto(company.Id, company.Name, company.RegistrationDate, company.Address));
-
             });
 
-            companiesGroup.MapDelete("companies/{companyId:int}", [Authorize(Roles = WarehelperRoles.Admin)]  async (int companyId, WarehelperDbContext dbContext) =>
+            companiesGroup.MapDelete("companies/{companyId:int}", [Authorize(Roles = WarehelperRoles.Admin)]  async (int companyId, HttpContext httpContext, WarehelperDbContext dbContext) =>
             {
                 Company company = await dbContext.Companies.FirstOrDefaultAsync<Company>(company => company.Id == companyId);
                 if (company == null)
                 {
                     return Results.NotFound();
                 }
+
+                if (httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub) != company.UserId)
+                {
+                    return Results.NotFound();
+                }
+
                 dbContext.Remove(company);
 
                 await dbContext.SaveChangesAsync();
