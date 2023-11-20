@@ -61,7 +61,7 @@ namespace WarehelperAPI
 
                 if(httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub) != company.UserId)
                 {
-                    return Results.NotFound();
+                    return Results.Forbid();
                 }
 
                 company.Address = updateCompanyDto.Address;
@@ -81,7 +81,7 @@ namespace WarehelperAPI
 
                 if (httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub) != company.UserId)
                 {
-                    return Results.NotFound();
+                    return Results.Forbid();
                 }
 
                 dbContext.Remove(company);

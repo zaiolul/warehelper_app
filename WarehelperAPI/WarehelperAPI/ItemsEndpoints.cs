@@ -52,10 +52,10 @@ namespace WarehelperAPI
                 {
                     return Results.NotFound("User not registered"); // SHOULDNT EVER HAPPEN?
                 }
-                Console.WriteLine($"Items Post warehouse: {warehouse.Id} user assigned warehouse: {user.AssignedWarehouse}");
+        
                 if ((isAdmin && id != warehouse.Company.UserId) || (!isAdmin && user.AssignedWarehouse != warehouseId))
                 {
-                    return Results.NotFound();
+                    return Results.Forbid();
                 }
 
          
@@ -98,7 +98,7 @@ namespace WarehelperAPI
 
                 if ((isAdmin && id != warehouse.Company.UserId) || (!isAdmin && user.AssignedWarehouse != warehouseId))
                 {
-                    return Results.NotFound();
+                    return Results.Forbid();
                 }
 
                 Item item = await dbContext.Items.Include(it => it.Warehouse).Include(it => it.Warehouse.Company).FirstOrDefaultAsync<Item>(it => it.Id == itemId && it.Warehouse.Id == warehouseId && it.Warehouse.Company.Id == companyId);
@@ -137,7 +137,7 @@ namespace WarehelperAPI
 
                 if ((isAdmin && id != warehouse.Company.UserId) || (!isAdmin && user.AssignedWarehouse != warehouseId))
                 {
-                    return Results.NotFound();
+                    return Results.Forbid();
                 }
 
                 Item item = await dbContext.Items.Include(it =>it.Warehouse).Include(it =>it.Warehouse.Company).FirstOrDefaultAsync<Item>(it => it.Id == itemId && it.Warehouse.Id == warehouseId && it.Warehouse.Company.Id == companyId);
