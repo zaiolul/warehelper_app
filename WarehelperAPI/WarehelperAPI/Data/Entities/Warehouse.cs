@@ -17,7 +17,7 @@ namespace WarehelperAPI.Data.Entities
         public required Company Company { get; set; }
         [Required]
         public required string UserId { get; set; }
-        public WarehelperUser User { get; set; }
+        public List<WarehelperUser> Users { get; set; }
     }
     
     public record WarehouseDto(int Id, string Name, string Address, int ItemCount, string Type);

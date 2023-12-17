@@ -16,8 +16,14 @@ namespace WarehelperAPI.Auth
         public async Task SeedAsync()
         {
             await AddDefaultRoles();
-            await AddAdminUser("admin1");
-            await AddAdminUser("admin2");
+            for(int i = 0; i <2; i++)
+            {
+                await AddAdminUser(string.Format("admin{0}", i));
+            }
+            for (int i = 0; i < 4; i++)
+            {
+                await AddWorkerUser(string.Format("worker{0}", i));
+            }
         }
         public async Task AddDefaultRoles()
         {
@@ -49,6 +55,26 @@ namespace WarehelperAPI.Auth
                 }
             }
            
+        }
+        private async Task AddWorkerUser(string name)
+        {
+            var newWorkerUser = new WarehelperUser
+            {
+                UserName = name,
+                Email = "worker@mail.com"
+            };
+
+            var existingWorkerUser = await _userManager.FindByNameAsync(newWorkerUser.UserName);
+            if (existingWorkerUser == null)
+            {
+                var createWorkerUserResult = await _userManager.CreateAsync(newWorkerUser, "Worker123!");
+                if (createWorkerUserResult.Succeeded)
+                {
+                        await _userManager.AddToRoleAsync(newWorkerUser, WarehelperRoles.Worker);
+
+                    }
+                }
+
         }
     }
 }

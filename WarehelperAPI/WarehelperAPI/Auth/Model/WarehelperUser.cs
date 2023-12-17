@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using WarehelperAPI.Data.Entities;
 
 namespace WarehelperAPI.Auth.Model
 {
@@ -6,5 +7,6 @@ namespace WarehelperAPI.Auth.Model
     {
         public bool ForceRelogin { get; set; }
         public int? AssignedWarehouse { get; set; } //maybe list?
+        public int? AssignedCompany { get; set; } //maybe list?
     }
 }

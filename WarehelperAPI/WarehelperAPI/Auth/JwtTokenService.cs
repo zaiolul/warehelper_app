@@ -22,11 +22,14 @@ namespace WarehelperAPI.Auth
             var authClaims = new List<Claim>()
             {
                 new(ClaimTypes.Name, userName),
+                
                 new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new(JwtRegisteredClaimNames.Sub, userId)
+                
             };
         
             authClaims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+           
 
             var token = new JwtSecurityToken
             (

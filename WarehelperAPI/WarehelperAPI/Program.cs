@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using WarehelperAPI.Auth;
+using Microsoft.AspNetCore.Builder;
 
 //adminas - gali sukurti įmonę, sandėlius įmonėje, registruoti darbuotojus į sandėlius
 //darbuotojas - modifikuoti daiktus jam priskirtam sandelyje
@@ -17,6 +18,24 @@ using WarehelperAPI.Auth;
 JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear(); // parsint roles ir kitas info user
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddCors(options =>
+{
+    //options.AddPolicy("CORSPolicy", builder =>
+    //{
+    //    builder.AllowAnyMethod()
+    //    .AllowAnyHeader()
+    //    .WithOrigins("http://localhost:3000", "https://warehelper.azurewebsites.net");
+    //});
+    options.AddPolicy("CORSPolicy", builder =>
+    {
+        builder.AllowAnyMethod()
+        .AllowAnyHeader()
+        .WithOrigins("http://localhost:3000", "https://warehelper.azurewebsites.net");
+    });
+});
 builder.Services.AddDbContext<WarehelperDbContext>();
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 builder.Services.AddTransient<JwtTokenService>();
@@ -44,6 +63,9 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
+app.UseCors("CORSPolicy");
+//app.UseHttpsRedirection();
+
 
 app.UseStatusCodePages(async statusCodeContext
     => await Results.Problem(statusCode: statusCodeContext.HttpContext.Response.StatusCode, title: "problem", detail: "Request couldn't complete successfully")

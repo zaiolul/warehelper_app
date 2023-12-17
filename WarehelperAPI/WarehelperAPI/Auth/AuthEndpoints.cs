@@ -58,11 +58,11 @@ namespace WarehelperAPI.Auth
                 await userManager.UpdateAsync(user);
 
                 var roles = await userManager.GetRolesAsync(user);
-                var accessToken = tokenService.CreateAccessToken(user.UserName, user.Id, roles);
+                var accessToken = tokenService.CreateAccessToken(user.UserName, user.Id, roles );
                 var refreshToken = tokenService.CreateRefreshToken(user.Id);
                 Console.WriteLine($"USER NAME: {user.UserName} USER ID {user.Id}");
                 System.Diagnostics.Trace.WriteLine($"USER NAME: {user.UserName} USER ID {user.Id}");
-                return Results.Ok(new SuccessfulLoginDto(accessToken, refreshToken));
+                return Results.Ok(new SuccessfulLoginDto(accessToken, refreshToken, user.AssignedCompany, user.AssignedWarehouse));
             });
 
 
@@ -91,7 +91,7 @@ namespace WarehelperAPI.Auth
                 var accessToken = tokenService.CreateAccessToken(user.UserName, user.Id, roles);
                 var refreshToken = tokenService.CreateRefreshToken(user.Id);
 
-                return Results.Ok(new SuccessfulLoginDto(accessToken, refreshToken));
+                return Results.Ok(new SuccessfulLoginDto(accessToken, refreshToken, user.AssignedCompany, user.AssignedWarehouse));
             });
         }
     }
@@ -102,8 +102,8 @@ public record UserDto(string UserId, string UserName, string Email);
 
 public record RegisterUserDto(string Username,string Email, string Password);
 
-public record LoginUserDto(string UserName, string Password);
-public record SuccessfulLoginDto(string AccessToken, string RefreshToken);
+public record LoginUserDto(string UserName, string Password );
+public record SuccessfulLoginDto(string AccessToken, string RefreshToken, int? Company, int? Warehouse);
 public record RefreshAccessTokenDto(string RefreshToken);
 
 

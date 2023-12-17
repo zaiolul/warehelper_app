@@ -38,7 +38,7 @@ namespace WarehelperAPI
                 return Results.Ok(new WarehouseDto(warehouse.Id,warehouse.Name, warehouse.Address, warehouse.ItemCount, warehouse.Type));
             });
 
-            warehousesGroup.MapPost("warehouses", [Authorize(Roles = WarehelperRoles.Admin)]  async (int companyId,[Validate] ModifyWarehouseDto createWarehouseDto, HttpContext httpContext, WarehelperDbContext dbContext) =>
+            warehousesGroup.MapPost("warehouses", [Authorize(Roles = WarehelperRoles.Admin)]  async (int companyId,[Validate] ModifyWarehouseDto createWarehouseDto, HttpContext httpContext, WarehelperDbContext dbContext, UserManager<WarehelperUser> userManager) =>
             {
 
                 Company company = await dbContext.Companies.FirstOrDefaultAsync<Company>(c => c.Id == companyId );
@@ -62,7 +62,7 @@ namespace WarehelperAPI
                     Company = company,
                     UserId = httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub) //may not be used
                 };
-
+                
                 dbContext.Warehouses.Add(warehouse);
                 await dbContext.SaveChangesAsync();
                 return Results.Created($"/api/companies/{companyId}/warehouses/{warehouse.Id}", new WarehouseDto(warehouse.Id, warehouse.Name, warehouse.Address, warehouse.ItemCount, warehouse.Type));
@@ -90,7 +90,7 @@ namespace WarehelperAPI
                 return Results.Ok(new WarehouseDto(warehouse.Id, warehouse.Name, warehouse.Address, warehouse.ItemCount, warehouse.Type));
             });
 
-            warehousesGroup.MapDelete("warehouses/{warehouseId:int}", [Authorize(Roles = WarehelperRoles.Admin)]  async (int companyId, int warehouseId, HttpContext httpContext,  WarehelperDbContext dbContext) =>
+            warehousesGroup.MapDelete("warehouses/{warehouseId:int}", [Authorize(Roles = WarehelperRoles.Admin)]  async (int companyId, int warehouseId, HttpContext httpContext,  WarehelperDbContext dbContext, UserManager<WarehelperUser> userManager ) =>
             {
                 Warehouse warehouse = await dbContext.Warehouses.Include(it => it.Company).FirstOrDefaultAsync<Warehouse>(wh => wh.Id == warehouseId && wh.Company.Id == companyId);
                 if (warehouse == null)
@@ -101,6 +101,8 @@ namespace WarehelperAPI
                 {
                     return Results.Forbid();
                 }
+
+                await userManager.Users.Where(user => user.AssignedCompany == companyId).ForEachAsync(user => user.AssignedWarehouse = default);
                 dbContext.Remove(warehouse);
                 await dbContext.SaveChangesAsync();
 
@@ -127,9 +129,19 @@ namespace WarehelperAPI
                     return Results.Forbid();
                 }
 
-                user.AssignedWarehouse = warehouseId;
+                if(user.AssignedCompany != default && user.AssignedCompany != warehouse.Company.Id)
+                {
+                    return Results.Forbid();
+                }
+
 
                 await dbContext.SaveChangesAsync();
+
+                user.AssignedWarehouse = warehouseId;
+                user.AssignedCompany = companyId;
+
+                await dbContext.SaveChangesAsync();
+
                 return Results.Ok(new SetUserDto(UserName: setDto.UserName));
              
 

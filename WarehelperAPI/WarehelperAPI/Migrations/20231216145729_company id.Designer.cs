@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WarehelperAPI.Data;
 
@@ -10,9 +11,11 @@ using WarehelperAPI.Data;
 namespace WarehelperAPI.Migrations
 {
     [DbContext(typeof(WarehelperDbContext))]
-    partial class WarehelperDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231216145729_company id")]
+    partial class companyid
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -208,9 +211,6 @@ namespace WarehelperAPI.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("varchar(256)");
 
-                    b.Property<int?>("WarehouseId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedEmail")
@@ -219,8 +219,6 @@ namespace WarehelperAPI.Migrations
                     b.HasIndex("NormalizedUserName")
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex");
-
-                    b.HasIndex("WarehouseId");
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
@@ -315,11 +313,13 @@ namespace WarehelperAPI.Migrations
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(255)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CompanyId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Warehouses");
                 });
@@ -375,13 +375,6 @@ namespace WarehelperAPI.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("WarehelperAPI.Auth.Model.WarehelperUser", b =>
-                {
-                    b.HasOne("WarehelperAPI.Data.Entities.Warehouse", null)
-                        .WithMany("Users")
-                        .HasForeignKey("WarehouseId");
-                });
-
             modelBuilder.Entity("WarehelperAPI.Data.Entities.Company", b =>
                 {
                     b.HasOne("WarehelperAPI.Auth.Model.WarehelperUser", "User")
@@ -420,12 +413,15 @@ namespace WarehelperAPI.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Company");
-                });
+                    b.HasOne("WarehelperAPI.Auth.Model.WarehelperUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-            modelBuilder.Entity("WarehelperAPI.Data.Entities.Warehouse", b =>
-                {
-                    b.Navigation("Users");
+                    b.Navigation("Company");
+
+                    b.Navigation("User");
                 });
 #pragma warning restore 612, 618
         }
