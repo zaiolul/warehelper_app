@@ -20,6 +20,7 @@ import LightModeIcon from '@mui/icons-material/LightMode';
 import IconButton from '@mui/material/IconButton';
 import PrivateRoute, { Anonymous, Protected } from "./utils/AuthRoutes.js";
 import getCompany from "./utils/GetCompany.js";
+
 const API_LOCAL = "http://localhost:58780/api";
 const API_REMOTE = "https://warehelper.azurewebsites.net";
 
@@ -63,9 +64,9 @@ export default function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
 
-      <IconButton sx={{ mr: 2, mb: 2, position: 'absolute', bottom: 0, right: 0 }} onClick={toggleColorMode} color="inherit">
+      {/* <IconButton sx={{ mr: 2, mb: 2, position: 'absolute', bottom: 0, right: 0 }} onClick={toggleColorMode} color="inherit">
         {theme.palette.mode === 'dark' ? <DarkModeIcon sx={{ width: 40, height: 40 }} /> : <LightModeIcon sx={{ width: 40, height: 40 }} />}
-      </IconButton>
+      </IconButton> */}
       <TopBar company={company}/>
 
       <Routes>
