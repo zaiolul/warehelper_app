@@ -3,3 +3,6 @@ WarehelperAPI/WarehelperAPI/bin/
 WarehelperAPI/.vs
 WarehelperAPI/WarehelperAPI/Properties/
 WarehelperAPI/WarehelperAPI/appsettings.json
+WarehelperAPI/reactclient/node_modules/
+WarehelperAPI/reactclient/build
+WarehelperAPI/reactclient/package-lock.json
