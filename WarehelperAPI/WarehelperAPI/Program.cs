@@ -64,7 +64,7 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 app.UseCors("CORSPolicy");
-//app.UseHttpsRedirection();
+app.UseHttpsRedirection();
 
 
 app.UseStatusCodePages(async statusCodeContext
